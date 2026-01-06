@@ -1,9 +1,46 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('../config/passport');
 const UserStore = require('../models/User');
 const SessionManager = require('../models/Session');
 const userConfigService = require('../services/userConfigService');
 const { generateToken, authenticate, authorize, rateLimit } = require('../middleware/auth');
+
+/**
+ * GET /api/auth/google
+ * Initiate Google OAuth
+ */
+router.get('/google', 
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'] 
+  })
+);
+
+/**
+ * GET /api/auth/google/callback
+ * Google OAuth callback
+ */
+router.get('/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login.html?error=Authentication failed' }),
+  async (req, res) => {
+    try {
+      // Create session for the user
+      const session = SessionManager.createSession(req.user.id, {
+        loginDate: new Date(),
+        userAgent: req.headers['user-agent'],
+        authMethod: 'google'
+      });
+
+      // Generate JWT token
+      const token = generateToken(req.user.id, session.sessionId);
+
+      // Redirect to dashboard with token
+      res.redirect(`/dashboard.html?token=${token}&sessionId=${session.sessionId}&user=${encodeURIComponent(JSON.stringify(req.user))}`);
+    } catch (error) {
+      res.redirect('/login.html?error=Login failed');
+    }
+  }
+);
 
 /**
  * POST /api/auth/signup

@@ -35,6 +35,7 @@ class UserStore {
       createdAt: new Date(),
       updatedAt: new Date(),
       isActive: true,
+      googleId: null,
       jiraConfig: null,
       trelloConfig: null
     };
@@ -59,6 +60,52 @@ class UserStore {
   async findByEmail(email) {
     const user = this.usersByEmail.get(email);
     return user || null;
+  }
+
+  /**
+   * Find user by Google ID
+   */
+  async findByGoogleId(googleId) {
+    const user = Array.from(this.users.values()).find(u => u.googleId === googleId);
+    return user || null;
+  }
+
+  /**
+   * Create or update user from Google OAuth
+   */
+  async findOrCreateGoogleUser(profile) {
+    const email = profile.emails[0].value;
+    let user = await this.findByEmail(email);
+
+    if (user) {
+      // Update Google ID if not set
+      if (!user.googleId) {
+        user.googleId = profile.id;
+        user.updatedAt = new Date();
+        this.users.set(user.id, user);
+      }
+      return this.sanitizeUser(user);
+    }
+
+    // Create new user
+    user = {
+      id: this.generateId(),
+      email,
+      password: null, // No password for Google OAuth users
+      name: profile.displayName,
+      role: 'user',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isActive: true,
+      googleId: profile.id,
+      jiraConfig: null,
+      trelloConfig: null
+    };
+
+    this.users.set(user.id, user);
+    this.usersByEmail.set(email, user);
+
+    return this.sanitizeUser(user);
   }
 
   /**

@@ -308,6 +308,27 @@
     <script>
         const API_BASE = 'http://localhost:5000';
 
+        // Handle OAuth callback parameters
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const sessionId = urlParams.get('sessionId');
+            const user = urlParams.get('user');
+
+            if (token && sessionId && user) {
+                // Store credentials from Google OAuth
+                localStorage.setItem('token', token);
+                localStorage.setItem('sessionId', sessionId);
+                localStorage.setItem('user', user);
+
+                // Remove parameters from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // Test connections after short delay
+            setTimeout(testConnections, 1000);
+        });
+
         async function testConnections() {
             try {
                 const response = await fetch(`${API_BASE}/api/tasks/test-connections`);
@@ -347,11 +368,6 @@
             document.getElementById('openaiStatus').innerHTML = '<span class="dot dot-yellow"></span><span class="loader"></span> Testing...';
             testConnections();
         }
-
-        // Auto-test on load
-        window.addEventListener('load', () => {
-            setTimeout(testConnections, 1000);
-        });
     </script>
 </body>
 </html>

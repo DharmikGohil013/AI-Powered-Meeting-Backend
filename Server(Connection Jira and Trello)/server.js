@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const socketIo = require('socket.io');
 const session = require('express-session');
+const passport = require('./config/passport');
 const taskRoutes = require('./routes/taskRoutes');
 const authRoutes = require('./routes/authRoutes');
 const SessionManager = require('./models/Session');
@@ -32,6 +33,10 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Middleware
 app.use(cors({
