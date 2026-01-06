@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Home - Meeting Task Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .status {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .status h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .status-item {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Meeting Task Automation</h1>
+            <p>Choose Your Testing Interface</p>
+        </div>
+
+        <div class="cards">
+            <a href="dashboard.html" class="card">
+                <div class="card-icon">📊</div>
+                <h2>Dashboard</h2>
+                <p>View system status, statistics, and quick actions</p>
+                <span class="badge">Recommended</span>
+            </a>
+
+            <a href="index.html" class="card">
+                <div class="card-icon">🎨</div>
+                <h2>Full Interface</h2>
+                <p>Complete testing interface with all features</p>
+            </a>
+
+            <a href="simple-test.html" class="card">
+                <div class="card-icon">⚡</div>
+                <h2>Simple Test</h2>
+                <p>Quick and easy testing interface</p>
+            </a>
+        </div>
+
+        <div class="status">
+            <h3>System Status</h3>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-label">Server</div>
+                    <div class="status-value">✅ Running</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">API Endpoints</div>
+                    <div class="status-value">10</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Integrations</div>
+                    <div class="status-value">3 Active</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Port</div>
+                    <div class="status-value">5000</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Backend running at http://localhost:5000</p>
+            <p>All credentials configured ✅</p>
+        </div>
+    </div>
+</body>
+</html>

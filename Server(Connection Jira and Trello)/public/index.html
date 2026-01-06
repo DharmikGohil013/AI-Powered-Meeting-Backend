@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Task Automation - Test Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        textarea, input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-box.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+
+        .result-box.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .result-box pre {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .task-card {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .task-card h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .task-card p {
+            color: #666;
+            margin: 4px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-high {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-medium {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .badge-low {
+            background: #28a745;
+            color: white;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+
+        .status-dot.connected {
+            background: #28a745;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Meeting Task Automation</h1>
+            <p>Test Interface for Jira & Trello Integration</p>
+        </div>
+
+        <div class="content">
+            <!-- Connection Status -->
+            <div class="section">
+                <h2>📡 Connection Status</h2>
+                <div id="connectionStatus" class="status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Not checked</span>
+                </div>
+                <button class="btn-info" onclick="testConnections()">Test Connections</button>
+            </div>
+
+            <!-- Task Extraction -->
+            <div class="section">
+                <h2>📝 Extract Tasks from Meeting Transcript</h2>
+                <label for="transcriptText">Meeting Transcript:</label>
+                <textarea id="transcriptText" placeholder="Paste your meeting transcript here...
+Example: 'Sir will integrate Jira by tomorrow. Tushar will handle Trello sync by next week.'"></textarea>
+                
+                <label>
+                    <input type="checkbox" id="useAI" checked> Use AI Extraction (requires OpenAI key)
+                </label>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="extractTasks()">Extract Tasks</button>
+                </div>
+
+                <div id="extractResult" class="result-box"></div>
+            </div>
+
+            <!-- Manual Task Creation -->
+            <div class="section">
+                <h2>➕ Create Manual Task</h2>
+                <div class="grid">
+                    <div>
+                        <label for="taskTitle">Task Title:</label>
+                        <input type="text" id="taskTitle" placeholder="e.g., Fix login bug">
+                    </div>
+                    <div>
+                        <label for="taskAssignee">Assignee:</label>
+                        <input type="text" id="taskAssignee" placeholder="e.g., John Doe">
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div>
+                        <label for="taskDeadline">Deadline:</label>
+                        <input type="text" id="taskDeadline" placeholder="e.g., Tomorrow, 2026-01-15">
+                    </div>
+                    <div>
+                        <label for="taskPriority">Priority:</label>
+                        <select id="taskPriority">
+                            <option value="High">High</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label for="taskDescription">Description (optional):</label>
+                <textarea id="taskDescription" placeholder="Additional details about the task..."></textarea>
+
+                <label for="taskTarget">Create In:</label>
+                <select id="taskTarget">
+                    <option value="both">Both (Jira & Trello)</option>
+                    <option value="jira">Only Jira</option>
+                    <option value="trello">Only Trello</option>
+                </select>
+
+                <div class="button-group">
+                    <button class="btn-success" onclick="createManualTask()">Create Task</button>
+                </div>
+
+                <div id="manualResult" class="result-box"></div>
+            </div>
+
+            <!-- Complete Flow -->
+            <div class="section">
+                <h2>⚡ Complete Flow (Extract & Create)</h2>
+                <p style="color: #666; margin-bottom: 15px;">
+                    This will extract tasks from transcript and automatically create them in Jira/Trello.
+                </p>
+                <label for="completeTranscript">Meeting Transcript:</label>
+                <textarea id="completeTranscript" placeholder="Paste meeting transcript here..."></textarea>
+
+                <label for="completeTarget">Create In:</label>
+                <select id="completeTarget">
+                    <option value="both">Both (Jira & Trello)</option>
+                    <option value="jira">Only Jira</option>
+                    <option value="trello">Only Trello</option>
+                </select>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="completeFlow()">Extract & Create All</button>
+                </div>
+
+                <div id="completeResult" class="result-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+
+        // Test Connections
+        async function testConnections() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            statusText.innerHTML = 'Testing... <span class="loader"></span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/tasks/test-connections`);
+                const data = await response.json();
+                
+                if (data.overall) {
+                    statusDot.classList.add('connected');
+                    statusText.innerHTML = `✅ Connected - Jira: ${data.jira.user}, Trello: ${data.trello.user}`;
+                } else {
+                    statusText.innerHTML = `⚠️ Partial Connection - Check .env configuration`;
+                }
+            } catch (error) {
+                statusText.innerHTML = '❌ Cannot connect to server. Is it running?';
+            }
+        }
+
+        // Extract Tasks
+        async function extractTasks() {
+            const transcriptText = document.getElementById('transcriptText').value;
+            const useAI = document.getElementById('useAI').checked;
+            const resultBox = document.getElementById('extractResult');
+
+            if (!transcriptText.trim()) {
+                showResult(resultBox, 'error', '❌ Please enter meeting transcript text');
+                return;
+            }
+
+            resultBox.innerHTML = 'Extracting tasks... <span class="loader"></span>';
+            resultBox.className = 'result-box show';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/tasks/extract`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transcriptText, useAI })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let html = `<h3>✅ Extracted ${data.count} tasks:</h3>`;
+                    data.tasks.forEach(task => {
+                        html += `
+                            <div class="task-card">
+                                <h3>${task.task}</h3>
+                                <p>
+                                    <span class="badge badge-${task.priority.toLowerCase()}">${task.priority}</span>
+                                    <strong>Assignee:</strong> ${task.assignee || 'Unassigned'}
+                                </p>
+                                <p><strong>Deadline:</strong> ${task.deadline || 'Not specified'}</p>
+                            </div>
+                        `;
+                    });
+                    showResult(resultBox, 'success', html);
+                } else {
+                    showResult(resultBox, 'error', `❌ ${data.error}`);
+                }
+            } catch (error) {
+                showResult(resultBox, 'error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        // Create Manual Task
+        async function createManualTask() {
+            const task = document.getElementById('taskTitle').value;
+            const assignee = document.getElementById('taskAssignee').value;
+            const deadline = document.getElementById('taskDeadline').value;
+            const priority = document.getElementById('taskPriority').value;
+            const description = document.getElementById('taskDescription').value;
+            const target = document.getElementById('taskTarget').value;
+            const resultBox = document.getElementById('manualResult');
+
+            if (!task.trim()) {
+                showResult(resultBox, 'error', '❌ Please enter a task title');
+                return;
+            }
+
+            resultBox.innerHTML = 'Creating task... <span class="loader"></span>';
+            resultBox.className = 'result-box show';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/tasks/manual-create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task, assignee, deadline, priority, description, target })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let html = '<h3>✅ Task created successfully!</h3>';
+                    
+                    if (data.results.jira) {
+                        html += `<p><strong>Jira:</strong> ${data.results.jira.success ? 
+                            `✅ Created - <a href="${data.results.jira.url}" target="_blank">${data.results.jira.issueKey}</a>` : 
+                            `❌ Failed - ${data.results.jira.error}`}</p>`;
+                    }
+                    
+                    if (data.results.trello) {
+                        html += `<p><strong>Trello:</strong> ${data.results.trello.success ? 
+                            `✅ Created - <a href="${data.results.trello.url}" target="_blank">View Card</a>` : 
+                            `❌ Failed - ${data.results.trello.error}`}</p>`;
+                    }
+                    
+                    showResult(resultBox, 'success', html);
+                } else {
+                    showResult(resultBox, 'error', `❌ ${data.error}`);
+                }
+            } catch (error) {
+                showResult(resultBox, 'error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        // Complete Flow
+        async function completeFlow() {
+            const transcriptText = document.getElementById('completeTranscript').value;
+            const target = document.getElementById('completeTarget').value;
+            const resultBox = document.getElementById('completeResult');
+
+            if (!transcriptText.trim()) {
+                showResult(resultBox, 'error', '❌ Please enter meeting transcript text');
+                return;
+            }
+
+            resultBox.innerHTML = 'Processing... <span class="loader"></span>';
+            resultBox.className = 'result-box show';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/tasks/create-all`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transcriptText, useAI: true, target })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let html = `<h3>✅ Processed ${data.taskCount} tasks</h3>`;
+                    
+                    data.results.extractedTasks.forEach((task, index) => {
+                        html += `<div class="task-card">
+                            <h4>${index + 1}. ${task.task}</h4>
+                            <p><strong>Assignee:</strong> ${task.assignee} | <strong>Deadline:</strong> ${task.deadline || 'N/A'}</p>`;
+                        
+                        if (data.results.jiraResults) {
+                            const jiraResult = data.results.jiraResults[index];
+                            html += `<p><strong>Jira:</strong> ${jiraResult.success ? 
+                                `✅ <a href="${jiraResult.url}" target="_blank">${jiraResult.issueKey}</a>` : 
+                                `❌ Failed`}</p>`;
+                        }
+                        
+                        if (data.results.trelloResults) {
+                            const trelloResult = data.results.trelloResults[index];
+                            html += `<p><strong>Trello:</strong> ${trelloResult.success ? 
+                                `✅ <a href="${trelloResult.url}" target="_blank">View Card</a>` : 
+                                `❌ Failed`}</p>`;
+                        }
+                        
+                        html += '</div>';
+                    });
+                    
+                    showResult(resultBox, 'success', html);
+                } else {
+                    showResult(resultBox, 'error', `❌ ${data.error}`);
+                }
+            } catch (error) {
+                showResult(resultBox, 'error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        // Helper function
+        function showResult(element, type, content) {
+            element.className = `result-box show ${type}`;
+            element.innerHTML = content;
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            setTimeout(testConnections, 500);
+        });
+    </script>
+</body>
+</html>
