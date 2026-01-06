@@ -59,8 +59,13 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', optionalAuth, taskRoutes);
 
-// Health check
+// Root route - redirect to login
 app.get('/', (req, res) => {
+  res.redirect('/login.html');
+});
+
+// API Info endpoint
+app.get('/api', (req, res) => {
   res.json({ 
     status: 'Server is running',
     message: 'Meeting Task Automation Backend',
@@ -68,6 +73,8 @@ app.get('/', (req, res) => {
     features: ['Multi-user support', 'Authentication', 'Real-time connections'],
     endpoints: {
       auth: {
+        google: 'GET /api/auth/google',
+        googleCallback: 'GET /api/auth/google/callback',
         signup: 'POST /api/auth/signup',
         login: 'POST /api/auth/login',
         logout: 'POST /api/auth/logout',
