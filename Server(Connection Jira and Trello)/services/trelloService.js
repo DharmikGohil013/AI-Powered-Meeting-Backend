@@ -190,19 +190,124 @@ class TrelloService {
   }
 
   /**
-   * Test Trello connection
+   * Create card with custom configuration (for user-specific settings)
    */
-  async testConnection() {
+  async createCardWithConfig(taskData, customConfig) {
     try {
-      const response = await axios.get(
-        `${this.baseUrl}/members/me`,
+      const { task, assignee, deadline, description, priority } = taskData;
+      const cardName = priority ? `[${priority}] ${task}` : task;
+
+      const cardPayload = {
+        key: customConfig.apiKey,
+        token: customConfig.apiToken,
+        idList: customConfig.listId,
+        name: cardName,
+        desc: description || `Task: ${task}\nAssigned to: ${assignee || 'Unassigned'}`
+      };
+
+      if (deadline) {
+        const dueDate = this.parseDateString(deadline);
+        if (dueDate) {
+          cardPayload.due = dueDate;
+        }
+      }
+
+      const response = await axios.post(
+        `${this.baseUrl}/cards`,
+        null,
+        { params: cardPayload }
+      );
+
+      if (priority) {
+        await this.addPriorityLabelWithConfig(response.data.id, priority, customConfig);
+      }
+
+      return {
+        success: true,
+        cardId: response.data.id,
+        cardName: response.data.name,
+        url: response.data.url,
+        shortUrl: response.data.shortUrl,
+        message: 'Trello card created successfully'
+      };
+    } catch (error) {
+      console.error('❌ Trello API Error:', error.response?.data || error.message);
+      return {
+        success: false,
+        error: error.response?.data || error.message,
+        message: 'Failed to create Trello card'
+      };
+    }
+  }
+
+  /**
+   * Add priority label with custom config
+   */
+  async addPriorityLabelWithConfig(cardId, priority, customConfig) {
+    try {
+      const labelsResponse = await axios.get(
+        `${this.baseUrl}/boards/${customConfig.boardId}/labels`,
         {
           params: {
-            key: this.apiKey,
-            token: this.token
+            key: customConfig.apiKey,
+            token: customConfig.apiToken
           }
         }
       );
+
+      const priorityColors = {
+        'Highest': 'red',
+        'High': 'orange',
+        'Medium': 'yellow',
+        'Low': 'green',
+        'Lowest': 'blue'
+      };
+
+      const color = priorityColors[priority] || 'yellow';
+      let label = labelsResponse.data.find(l => 
+        l.name.toLowerCase() === priority.toLowerCase()
+      );
+
+      if (!label) {
+        label = labelsResponse.data.find(l => l.color === color);
+      }
+
+      if (label) {
+        await axios.post(
+          `${this.baseUrl}/cards/${cardId}/idLabels`,
+          null,
+          {
+            params: {
+              key: customConfig.apiKey,
+              token: customConfig.apiToken,
+              value: label.id
+            }
+          }
+        );
+      }
+    } catch (error) {
+      console.log('Could not add priority label:', error.message);
+    }
+  }
+
+  /**
+   * Test Trello connection with custom config
+   */
+  async testConnection(customConfig = null) {
+    try {
+      const params = customConfig ? {
+        key: customConfig.apiKey,
+        token: customConfig.apiToken
+      } : {
+        key: this.apiKey,
+        token: this.token
+      };
+
+      const response = await axios.get(
+        `${this.baseUrl}/members/me`,
+        { params: params }
+      );
+      
       return {
         success: true,
         user: response.data.fullName,

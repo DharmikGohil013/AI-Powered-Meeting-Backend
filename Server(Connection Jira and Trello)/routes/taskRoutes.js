@@ -3,14 +3,17 @@ const router = express.Router();
 const taskExtractor = require('../services/taskExtractor');
 const jiraService = require('../services/jiraService');
 const trelloService = require('../services/trelloService');
+const userConfigService = require('../services/userConfigService');
 
 /**
  * POST /api/tasks/extract
  * Extract tasks from meeting transcript
+ * Supports both authenticated and anonymous users
  */
 router.post('/extract', async (req, res) => {
   try {
     const { transcriptText, useAI = true } = req.body;
+    const userId = req.user?.id || 'anonymous';
 
     if (!transcriptText) {
       return res.status(400).json({ 
@@ -19,13 +22,33 @@ router.post('/extract', async (req, res) => {
       });
     }
 
+    // Emit processing event if user is authenticated
+    if (req.user && req.io) {
+      req.io.emit('task_processing', {
+        userId: req.user.id,
+        action: 'extract',
+        status: 'started'
+      });
+    }
+
     const tasks = await taskExtractor.extract(transcriptText, useAI);
+
+    // Emit completion event
+    if (req.user && req.io) {
+      req.io.emit('task_complete', {
+        userId: req.user.id,
+        action: 'extract',
+        status: 'completed',
+        count: tasks.length
+      });
+    }
 
     res.json({
       success: true,
       message: 'Tasks extracted successfully',
       count: tasks.length,
-      tasks: tasks
+      tasks: tasks,
+      user: req.user ? { id: req.user.id, name: req.user.name } : null
     });
   } catch (error) {
     res.status(500).json({
@@ -38,6 +61,7 @@ router.post('/extract', async (req, res) => {
 /**
  * POST /api/tasks/jira
  * Create task in Jira
+ * Uses user's personal Jira config if authenticated
  */
 router.post('/jira', async (req, res) => {
   try {
@@ -50,10 +74,38 @@ router.post('/jira', async (req, res) => {
       });
     }
 
-    const result = await jiraService.createIssue(taskData);
+    // Emit processing event
+    if (req.user && req.io) {
+      req.io.emit('task_processing', {
+        userId: req.user.id,
+        action: 'jira_create',
+        status: 'started'
+      });
+    }
+
+    // Use user-specific config if authenticated
+    let result;
+    if (req.user) {
+      result = await userConfigService.createJiraIssueForUser(req.user, taskData);
+    } else {
+      result = await jiraService.createIssue(taskData);
+    }
+
+    // Emit completion event
+    if (req.user && req.io) {
+      req.io.emit('task_complete', {
+        userId: req.user.id,
+        action: 'jira_create',
+        status: result.success ? 'completed' : 'failed',
+        result: result
+      });
+    }
 
     if (result.success) {
-      res.json(result);
+      res.json({
+        ...result,
+        user: req.user ? { id: req.user.id, name: req.user.name } : null
+      });
     } else {
       res.status(400).json(result);
     }
@@ -68,6 +120,7 @@ router.post('/jira', async (req, res) => {
 /**
  * POST /api/tasks/jira/bulk
  * Create multiple tasks in Jira
+ * Uses user's personal Jira config if authenticated
  */
 router.post('/jira/bulk', async (req, res) => {
   try {
@@ -80,12 +133,39 @@ router.post('/jira/bulk', async (req, res) => {
       });
     }
 
-    const results = await jiraService.createMultipleIssues(tasks);
+    // Emit processing event
+    if (req.user && req.io) {
+      req.io.emit('task_processing', {
+        userId: req.user.id,
+        action: 'jira_bulk_create',
+        status: 'started',
+        count: tasks.length
+      });
+    }
+
+    // Use user-specific config if authenticated
+    let results;
+    if (req.user) {
+      results = await userConfigService.createMultipleJiraIssuesForUser(req.user, tasks);
+    } else {
+      results = await jiraService.createMultipleIssues(tasks);
+    }
+
+    // Emit completion event
+    if (req.user && req.io) {
+      req.io.emit('task_complete', {
+        userId: req.user.id,
+        action: 'jira_bulk_create',
+        status: 'completed',
+        results: results
+      });
+    }
 
     res.json({
       success: true,
       message: 'Bulk Jira issues creation completed',
-      results: results
+      results: results,
+      user: req.user ? { id: req.user.id, name: req.user.name } : null
     });
   } catch (error) {
     res.status(500).json({
@@ -98,6 +178,7 @@ router.post('/jira/bulk', async (req, res) => {
 /**
  * POST /api/tasks/trello
  * Create card in Trello
+ * Uses user's personal Trello config if authenticated
  */
 router.post('/trello', async (req, res) => {
   try {
@@ -110,10 +191,38 @@ router.post('/trello', async (req, res) => {
       });
     }
 
-    const result = await trelloService.createCard(taskData);
+    // Emit processing event
+    if (req.user && req.io) {
+      req.io.emit('task_processing', {
+        userId: req.user.id,
+        action: 'trello_create',
+        status: 'started'
+      });
+    }
+
+    // Use user-specific config if authenticated
+    let result;
+    if (req.user) {
+      result = await userConfigService.createTrelloCardForUser(req.user, taskData);
+    } else {
+      result = await trelloService.createCard(taskData);
+    }
+
+    // Emit completion event
+    if (req.user && req.io) {
+      req.io.emit('task_complete', {
+        userId: req.user.id,
+        action: 'trello_create',
+        status: result.success ? 'completed' : 'failed',
+        result: result
+      });
+    }
 
     if (result.success) {
-      res.json(result);
+      res.json({
+        ...result,
+        user: req.user ? { id: req.user.id, name: req.user.name } : null
+      });
     } else {
       res.status(400).json(result);
     }

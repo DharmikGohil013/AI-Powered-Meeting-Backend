@@ -187,15 +187,106 @@ class JiraService {
   }
 
   /**
-   * Test Jira connection
+   * Create issue with custom configuration (for user-specific settings)
    */
-  async testConnection() {
+  async createIssueWithConfig(taskData, customConfig) {
+    const baseUrl = `https://${customConfig.domain}`;
+    const auth = {
+      username: customConfig.email,
+      password: customConfig.apiToken
+    };
+    const projectKey = customConfig.projectKey;
+
     try {
-      const response = await axios.get(
-        `${this.baseUrl}/rest/api/3/myself`,
-        {
-          auth: this.auth
+      const { task, assignee, deadline, priority, description } = taskData;
+
+      const issuePayload = {
+        fields: {
+          project: { key: projectKey },
+          summary: this.sanitizeSummary(task),
+          description: this.convertToADF(description || task),
+          issuetype: { name: 'Task' }
         }
+      };
+
+      if (assignee && assignee.toLowerCase() !== 'unassigned') {
+        issuePayload.fields.assignee = { name: assignee };
+      }
+
+      if (deadline) {
+        const dueDate = this.parseDateString(deadline);
+        if (dueDate) {
+          issuePayload.fields.duedate = dueDate;
+        }
+      }
+
+      if (priority) {
+        issuePayload.fields.priority = { name: priority };
+      }
+
+      const response = await axios.post(
+        `${baseUrl}/rest/api/3/issue`,
+        issuePayload,
+        {
+          auth: auth,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+
+      return {
+        success: true,
+        issueKey: response.data.key,
+        issueId: response.data.id,
+        url: `${baseUrl}/browse/${response.data.key}`,
+        message: 'Jira issue created successfully'
+      };
+    } catch (error) {
+      console.error('❌ Jira API Error:', error.response?.data || error.message);
+      return {
+        success: false,
+        error: error.response?.data?.errorMessages?.[0] || error.message,
+        message: 'Failed to create Jira issue'
+      };
+    }
+  }
+
+  /**
+   * Create multiple issues with custom configuration
+   */
+  async createMultipleIssuesWithConfig(tasks, customConfig) {
+    const results = [];
+    
+    for (const task of tasks) {
+      const result = await this.createIssueWithConfig(task, customConfig);
+      results.push({
+        task: task.task,
+        ...result
+      });
+    }
+
+    return results;
+  }
+
+  /**
+   * Test Jira connection with custom config
+   */
+  async testConnection(customConfig = null) {
+    const config = customConfig || {
+      domain: this.baseUrl.replace('https://', ''),
+      email: this.auth.username,
+      apiToken: this.auth.password
+    };
+
+    try {
+      const baseUrl = customConfig ? `https://${customConfig.domain}` : this.baseUrl;
+      const auth = customConfig ? {
+        username: customConfig.email,
+        password: customConfig.apiToken
+      } : this.auth;
+
+      const response = await axios.get(
+        `${baseUrl}/rest/api/3/myself`,
+        { auth: auth }
       );
       return {
         success: true,
