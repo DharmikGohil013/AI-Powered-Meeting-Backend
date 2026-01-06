@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Meeting Task Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: #666;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .user-details {
+            text-align: left;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Account Connection Cards */
+        .connection-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .connection-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .connection-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .connection-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .connection-icon {
+            font-size: 2rem;
+        }
+
+        .connection-title h3 {
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .connection-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .connection-info {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            min-height: 80px;
+        }
+
+        .connection-info p {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .connection-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .connection-detail span:first-child {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .connection-detail span:last-child {
+            color: #333;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .connection-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Quick Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Quick Actions */
+        .action-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .action-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .help-text a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>🚀 Task Automation Dashboard</h1>
+                <p>Manage your meetings and automate task creation</p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Guest User</div>
+                    <div class="user-email" id="userEmail">Not logged in</div>
+                </div>
+                <button class="logout-btn" onclick="logout()" id="logoutBtn" style="display:none;">Logout</button>
+            </div>
+        </div>
+
+        <!-- Account Connection Cards -->
+        <div class="connection-cards">
+            <!-- Jira Connection -->
+            <div class="connection-card">
+                <div class="connection-header">
+                    <div class="connection-title">
+                        <span class="connection-icon">📋</span>
+                        <h3>Jira</h3>
+                    </div>
+                    <span class="connection-badge badge-disconnected" id="jiraBadge">Not Connected</span>
+                </div>
+                <div class="connection-info" id="jiraInfo">
+                    <p>Connect your Jira account to automatically create issues from meeting tasks.</p>
+                </div>
+                <div class="connection-actions">
+                    <button class="btn btn-primary" onclick="openJiraModal()" id="jiraConnectBtn">
+                        🔗 Connect Jira
+                    </button>
+                    <button class="btn btn-danger" onclick="disconnectJira()" id="jiraDisconnectBtn" style="display:none;">
+                        ❌ Disconnect
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trello Connection -->
+            <div class="connection-card">
+                <div class="connection-header">
+                    <div class="connection-title">
+                        <span class="connection-icon">📊</span>
+                        <h3>Trello</h3>
+                    </div>
+                    <span class="connection-badge badge-disconnected" id="trelloBadge">Not Connected</span>
+                </div>
+                <div class="connection-info" id="trelloInfo">
+                    <p>Connect your Trello account to automatically create cards from meeting tasks.</p>
+                </div>
+                <div class="connection-actions">
+                    <button class="btn btn-primary" onclick="openTrelloModal()" id="trelloConnectBtn">
+                        🔗 Connect Trello
+                    </button>
+                    <button class="btn btn-danger" onclick="disconnectTrello()" id="trelloDisconnectBtn" style="display:none;">
+                        ❌ Disconnect
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="connection-card">
+                <div class="connection-header">
+                    <div class="connection-title">
+                        <span class="connection-icon">🌐</span>
+                        <h3>System Status</h3>
+                    </div>
+                    <span class="connection-badge badge-connected" id="systemBadge">Online</span>
+                </div>
+                <div class="connection-info">
+                    <div class="connection-detail">
+                        <span>Server:</span>
+                        <span id="serverStatus">Checking...</span>
+                    </div>
+                    <div class="connection-detail">
+                        <span>Active Users:</span>
+                        <span id="activeUsers">-</span>
+                    </div>
+                    <div class="connection-detail">
+                        <span>Your Sessions:</span>
+                        <span id="yourSessions">-</span>
+                    </div>
+                </div>
+                <div class="connection-actions">
+                    <button class="btn btn-success" onclick="refreshStatus()">
+                        🔄 Refresh Status
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="action-section">
+            <h2>⚡ Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="simple-test.html" class="action-btn">
+                    <span>📝</span>
+                    Extract Tasks
+                </a>
+                <a href="settings.html" class="action-btn">
+                    <span>⚙️</span>
+                    Settings
+                </a>
+                <button class="action-btn" onclick="testJiraConnection()">
+                    <span>🧪</span>
+                    Test Jira
+                </button>
+                <button class="action-btn" onclick="testTrelloConnection()">
+                    <span>🧪</span>
+                    Test Trello
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jira Connection Modal -->
+    <div class="modal" id="jiraModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Connect Jira Account</h2>
+                <button class="close-btn" onclick="closeJiraModal()">×</button>
+            </div>
+            <div id="jiraAlert"></div>
+            <form onsubmit="connectJira(event)">
+                <div class="form-group">
+                    <label>Jira Domain *</label>
+                    <input type="text" id="jiraDomain" placeholder="mycompany.atlassian.net" required>
+                    <div class="help-text">Your Jira instance domain (without https://)</div>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="jiraEmail" placeholder="your-email@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>API Token *</label>
+                    <input type="password" id="jiraApiToken" placeholder="Your Jira API token" required>
+                    <div class="help-text">
+                        Generate at: <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">Atlassian API Tokens</a>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Project Key *</label>
+                    <input type="text" id="jiraProjectKey" placeholder="PROJ" required>
+                    <div class="help-text">Your Jira project key (e.g., PROJ, DEV)</div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="jiraSaveBtn" style="width: 100%;">
+                    💾 Connect & Test
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Trello Connection Modal -->
+    <div class="modal" id="trelloModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Connect Trello Account</h2>
+                <button class="close-btn" onclick="closeTrelloModal()">×</button>
+            </div>
+            <div id="trelloAlert"></div>
+            <form onsubmit="connectTrello(event)">
+                <div class="form-group">
+                    <label>API Key *</label>
+                    <input type="text" id="trelloApiKey" placeholder="Your Trello API key" required>
+                    <div class="help-text">
+                        Get your key at: <a href="https://trello.com/app-key" target="_blank">Trello API Key</a>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>API Token *</label>
+                    <input type="password" id="trelloApiToken" placeholder="Your Trello API token" required>
+                    <div class="help-text">Generate token from the API key page</div>
+                </div>
+                <div class="form-group">
+                    <label>Board ID *</label>
+                    <input type="text" id="trelloBoardId" placeholder="Board ID" required>
+                    <div class="help-text">Find in board URL: trello.com/b/[BOARD_ID]/board-name</div>
+                </div>
+                <div class="form-group">
+                    <label>List ID (Optional)</label>
+                    <input type="text" id="trelloListId" placeholder="List ID">
+                    <div class="help-text">Default list for new cards</div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="trelloSaveBtn" style="width: 100%;">
+                    💾 Connect & Test
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let token = localStorage.getItem('token');
+        let user = null;
+
+        // Initialize
+        async function init() {
+            if (token) {
+                await loadUserData();
+                await loadConnectionStatus();
+                document.getElementById('logoutBtn').style.display = 'block';
+            } else {
+                showGuestMode();
+            }
+            await loadSystemStatus();
+            startAutoRefresh();
+        }
+
+        // Load user data
+        async function loadUserData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    user = data.data.user;
+                    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials;
+                    document.getElementById('userName').textContent = user.name;
+                    document.getElementById('userEmail').textContent = user.email;
+                    document.getElementById('yourSessions').textContent = data.data.activeSessions;
+                }
+            } catch (error) {
+                console.error('Error loading user:', error);
+            }
+        }
+
+        // Load connection status
+        async function loadConnectionStatus() {
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/config/status`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    updateJiraStatus(data.data.jira);
+                    updateTrelloStatus(data.data.trello);
+                }
+            } catch (error) {
+                console.error('Error loading status:', error);
+            }
+        }
+
+        // Update Jira status
+        function updateJiraStatus(jiraData) {
+            const badge = document.getElementById('jiraBadge');
+            const info = document.getElementById('jiraInfo');
+            const connectBtn = document.getElementById('jiraConnectBtn');
+            const disconnectBtn = document.getElementById('jiraDisconnectBtn');
+
+            if (jiraData.configured) {
+                badge.textContent = 'Connected';
+                badge.className = 'connection-badge badge-connected';
+                info.innerHTML = `
+                    <div class="connection-detail">
+                        <span>Domain:</span>
+                        <span>${jiraData.domain}</span>
+                    </div>
+                    <div class="connection-detail">
+                        <span>Project:</span>
+                        <span>${jiraData.projectKey}</span>
+                    </div>
+                    <div class="connection-detail">
+                        <span>Type:</span>
+                        <span>${jiraData.isCustom ? 'Personal Account' : 'Default'}</span>
+                    </div>
+                `;
+                connectBtn.textContent = '🔧 Reconfigure';
+                disconnectBtn.style.display = 'block';
+            } else {
+                badge.textContent = 'Not Connected';
+                badge.className = 'connection-badge badge-disconnected';
+                info.innerHTML = '<p>Connect your Jira account to automatically create issues from meeting tasks.</p>';
+                connectBtn.textContent = '🔗 Connect Jira';
+                disconnectBtn.style.display = 'none';
+            }
+        }
+
+        // Update Trello status
+        function updateTrelloStatus(trelloData) {
+            const badge = document.getElementById('trelloBadge');
+            const info = document.getElementById('trelloInfo');
+            const connectBtn = document.getElementById('trelloConnectBtn');
+            const disconnectBtn = document.getElementById('trelloDisconnectBtn');
+
+            if (trelloData.configured) {
+                badge.textContent = 'Connected';
+                badge.className = 'connection-badge badge-connected';
+                info.innerHTML = `
+                    <div class="connection-detail">
+                        <span>Board ID:</span>
+                        <span>${trelloData.boardId.substring(0, 8)}...</span>
+                    </div>
+                    <div class="connection-detail">
+                        <span>Type:</span>
+                        <span>${trelloData.isCustom ? 'Personal Account' : 'Default'}</span>
+                    </div>
+                    <div class="connection-detail">
+                        <span>Status:</span>
+                        <span>Ready to use</span>
+                    </div>
+                `;
+                connectBtn.textContent = '🔧 Reconfigure';
+                disconnectBtn.style.display = 'block';
+            } else {
+                badge.textContent = 'Not Connected';
+                badge.className = 'connection-badge badge-disconnected';
+                info.innerHTML = '<p>Connect your Trello account to automatically create cards from meeting tasks.</p>';
+                connectBtn.textContent = '🔗 Connect Trello';
+                disconnectBtn.style.display = 'none';
+            }
+        }
+
+        // Load system status
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch(`${API_URL}/status/system`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('serverStatus').textContent = '✅ Online';
+                    document.getElementById('activeUsers').textContent = data.data.sessions.connectedUsers || 0;
+                    
+                    const systemBadge = document.getElementById('systemBadge');
+                    systemBadge.textContent = 'Online';
+                    systemBadge.className = 'connection-badge badge-connected';
+                }
+            } catch (error) {
+                document.getElementById('serverStatus').textContent = '❌ Offline';
+                const systemBadge = document.getElementById('systemBadge');
+                systemBadge.textContent = 'Offline';
+                systemBadge.className = 'connection-badge badge-disconnected';
+            }
+        }
+
+        // Jira Modal
+        function openJiraModal() {
+            if (!token) {
+                alert('Please login first!');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load existing config if available
+            if (user && user.jiraConfig) {
+                document.getElementById('jiraDomain').value = user.jiraConfig.domain || '';
+                document.getElementById('jiraEmail').value = user.jiraConfig.email || '';
+                document.getElementById('jiraApiToken').value = user.jiraConfig.apiToken || '';
+                document.getElementById('jiraProjectKey').value = user.jiraConfig.projectKey || '';
+            }
+
+            document.getElementById('jiraModal').classList.add('show');
+        }
+
+        function closeJiraModal() {
+            document.getElementById('jiraModal').classList.remove('show');
+            document.getElementById('jiraAlert').innerHTML = '';
+        }
+
+        async function connectJira(event) {
+            event.preventDefault();
+            
+            const btn = document.getElementById('jiraSaveBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Connecting...';
+
+            const config = {
+                domain: document.getElementById('jiraDomain').value,
+                email: document.getElementById('jiraEmail').value,
+                apiToken: document.getElementById('jiraApiToken').value,
+                projectKey: document.getElementById('jiraProjectKey').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/auth/config/jira`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const data = await response.json();
+                const alertDiv = document.getElementById('jiraAlert');
+
+                if (data.success) {
+                    alertDiv.innerHTML = `<div class="alert alert-success">
+                        ✅ Connected successfully as: ${data.data.testResult.user}
+                    </div>`;
+                    
+                    setTimeout(() => {
+                        closeJiraModal();
+                        loadConnectionStatus();
+                    }, 1500);
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error">
+                        ❌ ${data.error || data.message}
+                    </div>`;
+                }
+            } catch (error) {
+                document.getElementById('jiraAlert').innerHTML = `<div class="alert alert-error">
+                    ❌ Error: ${error.message}
+                </div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '💾 Connect & Test';
+            }
+        }
+
+        async function disconnectJira() {
+            if (!confirm('Disconnect your Jira account?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/config/jira`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    await loadConnectionStatus();
+                    alert('✅ Jira disconnected successfully');
+                }
+            } catch (error) {
+                alert('❌ Error disconnecting Jira');
+            }
+        }
+
+        // Trello Modal
+        function openTrelloModal() {
+            if (!token) {
+                alert('Please login first!');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load existing config if available
+            if (user && user.trelloConfig) {
+                document.getElementById('trelloApiKey').value = user.trelloConfig.apiKey || '';
+                document.getElementById('trelloApiToken').value = user.trelloConfig.apiToken || '';
+                document.getElementById('trelloBoardId').value = user.trelloConfig.boardId || '';
+                document.getElementById('trelloListId').value = user.trelloConfig.listId || '';
+            }
+
+            document.getElementById('trelloModal').classList.add('show');
+        }
+
+        function closeTrelloModal() {
+            document.getElementById('trelloModal').classList.remove('show');
+            document.getElementById('trelloAlert').innerHTML = '';
+        }
+
+        async function connectTrello(event) {
+            event.preventDefault();
+            
+            const btn = document.getElementById('trelloSaveBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Connecting...';
+
+            const config = {
+                apiKey: document.getElementById('trelloApiKey').value,
+                apiToken: document.getElementById('trelloApiToken').value,
+                boardId: document.getElementById('trelloBoardId').value,
+                listId: document.getElementById('trelloListId').value || undefined
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/auth/config/trello`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const data = await response.json();
+                const alertDiv = document.getElementById('trelloAlert');
+
+                if (data.success) {
+                    alertDiv.innerHTML = `<div class="alert alert-success">
+                        ✅ Connected successfully as: ${data.data.testResult.user}
+                    </div>`;
+                    
+                    setTimeout(() => {
+                        closeTrelloModal();
+                        loadConnectionStatus();
+                    }, 1500);
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error">
+                        ❌ ${data.error || data.message}
+                    </div>`;
+                }
+            } catch (error) {
+                document.getElementById('trelloAlert').innerHTML = `<div class="alert alert-error">
+                    ❌ Error: ${error.message}
+                </div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '💾 Connect & Test';
+            }
+        }
+
+        async function disconnectTrello() {
+            if (!confirm('Disconnect your Trello account?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/config/trello`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    await loadConnectionStatus();
+                    alert('✅ Trello disconnected successfully');
+                }
+            } catch (error) {
+                alert('❌ Error disconnecting Trello');
+            }
+        }
+
+        // Test connections
+        async function testJiraConnection() {
+            if (!token) {
+                alert('Please login and connect Jira first!');
+                return;
+            }
+            alert('Testing Jira connection... (Feature: Create a test issue)');
+        }
+
+        async function testTrelloConnection() {
+            if (!token) {
+                alert('Please login and connect Trello first!');
+                return;
+            }
+            alert('Testing Trello connection... (Feature: Create a test card)');
+        }
+
+        // Refresh status
+        async function refreshStatus() {
+            await loadSystemStatus();
+            if (token) {
+                await loadConnectionStatus();
+            }
+            alert('✅ Status refreshed!');
+        }
+
+        // Show guest mode
+        function showGuestMode() {
+            document.getElementById('userAvatar').textContent = '👤';
+            document.getElementById('userName').textContent = 'Guest User';
+            document.getElementById('userEmail').textContent = 'Not logged in';
+            
+            // Show login prompt in connection cards
+            const jiraInfo = document.getElementById('jiraInfo');
+            const trelloInfo = document.getElementById('trelloInfo');
+            
+            jiraInfo.innerHTML = '<p>Please <a href="login.html" style="color: #667eea;">login</a> to connect your Jira account.</p>';
+            trelloInfo.innerHTML = '<p>Please <a href="login.html" style="color: #667eea;">login</a> to connect your Trello account.</p>';
+            
+            document.getElementById('jiraConnectBtn').textContent = '🔒 Login Required';
+            document.getElementById('trelloConnectBtn').textContent = '🔒 Login Required';
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Auto-refresh every 30 seconds
+        function startAutoRefresh() {
+            setInterval(() => {
+                loadSystemStatus();
+            }, 30000);
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const jiraModal = document.getElementById('jiraModal');
+            const trelloModal = document.getElementById('trelloModal');
+            
+            if (event.target === jiraModal) {
+                closeJiraModal();
+            }
+            if (event.target === trelloModal) {
+                closeTrelloModal();
+            }
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

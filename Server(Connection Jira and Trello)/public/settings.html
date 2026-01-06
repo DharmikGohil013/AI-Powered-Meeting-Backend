@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Meeting Task Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+        }
+
+        .back-btn {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.configured {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.not-configured {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .user-info {
+            background: #e8eaf6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .user-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .config-status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Settings</h1>
+            <a href="dashboard.html" class="back-btn">Back to Dashboard</a>
+        </div>
+
+        <div class="card">
+            <div class="user-info" id="userInfo">
+                <h3>Your Account</h3>
+                <div class="info-row">
+                    <span>Name:</span>
+                    <strong id="userName">Loading...</strong>
+                </div>
+                <div class="info-row">
+                    <span>Email:</span>
+                    <strong id="userEmail">Loading...</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jira Configuration -->
+        <div class="card">
+            <h2>
+                Jira Configuration
+                <span class="status-badge not-configured" id="jiraStatus">Not Configured</span>
+            </h2>
+            <p>Configure your personal Jira account to create issues</p>
+
+            <div id="jiraAlert" class="alert"></div>
+
+            <form id="jiraForm" onsubmit="saveJiraConfig(event)">
+                <div class="form-group">
+                    <label for="jiraDomain">Jira Domain *</label>
+                    <input type="text" id="jiraDomain" placeholder="mycompany.atlassian.net" required>
+                    <div class="help-text">Your Jira instance domain (without https://)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="jiraEmail">Email *</label>
+                    <input type="email" id="jiraEmail" placeholder="your-email@company.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="jiraApiToken">API Token *</label>
+                    <input type="password" id="jiraApiToken" placeholder="Your Jira API token" required>
+                    <div class="help-text">Generate at: <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">Atlassian API Tokens</a></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="jiraProjectKey">Project Key *</label>
+                    <input type="text" id="jiraProjectKey" placeholder="PROJ" required>
+                    <div class="help-text">Your Jira project key (e.g., PROJ, DEV, etc.)</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="jiraSaveBtn">Save Jira Config</button>
+                <button type="button" class="btn btn-danger" onclick="removeJiraConfig()" id="jiraRemoveBtn" style="display:none;">Remove Config</button>
+            </form>
+        </div>
+
+        <!-- Trello Configuration -->
+        <div class="card">
+            <h2>
+                Trello Configuration
+                <span class="status-badge not-configured" id="trelloStatus">Not Configured</span>
+            </h2>
+            <p>Configure your personal Trello account to create cards</p>
+
+            <div id="trelloAlert" class="alert"></div>
+
+            <form id="trelloForm" onsubmit="saveTrelloConfig(event)">
+                <div class="form-group">
+                    <label for="trelloApiKey">API Key *</label>
+                    <input type="text" id="trelloApiKey" placeholder="Your Trello API key" required>
+                    <div class="help-text">Get your key at: <a href="https://trello.com/app-key" target="_blank">Trello API Key</a></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="trelloApiToken">API Token *</label>
+                    <input type="password" id="trelloApiToken" placeholder="Your Trello API token" required>
+                    <div class="help-text">Generate token from the API key page</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="trelloBoardId">Board ID *</label>
+                    <input type="text" id="trelloBoardId" placeholder="Board ID" required>
+                    <div class="help-text">Find in board URL: trello.com/b/[BOARD_ID]/board-name</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="trelloListId">List ID (Optional)</label>
+                    <input type="text" id="trelloListId" placeholder="List ID">
+                    <div class="help-text">Default list for new cards</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="trelloSaveBtn">Save Trello Config</button>
+                <button type="button" class="btn btn-danger" onclick="removeTrelloConfig()" id="trelloRemoveBtn" style="display:none;">Remove Config</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // Load user info and config status
+        async function loadUserData() {
+            try {
+                // Get user profile
+                const profileRes = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const profileData = await profileRes.json();
+
+                if (profileData.success) {
+                    document.getElementById('userName').textContent = profileData.data.user.name;
+                    document.getElementById('userEmail').textContent = profileData.data.user.email;
+
+                    // Load existing configs
+                    if (profileData.data.user.jiraConfig) {
+                        const jc = profileData.data.user.jiraConfig;
+                        document.getElementById('jiraDomain').value = jc.domain || '';
+                        document.getElementById('jiraEmail').value = jc.email || '';
+                        document.getElementById('jiraApiToken').value = jc.apiToken || '';
+                        document.getElementById('jiraProjectKey').value = jc.projectKey || '';
+                        
+                        document.getElementById('jiraStatus').textContent = 'Configured';
+                        document.getElementById('jiraStatus').className = 'status-badge configured';
+                        document.getElementById('jiraRemoveBtn').style.display = 'inline-block';
+                    }
+
+                    if (profileData.data.user.trelloConfig) {
+                        const tc = profileData.data.user.trelloConfig;
+                        document.getElementById('trelloApiKey').value = tc.apiKey || '';
+                        document.getElementById('trelloApiToken').value = tc.apiToken || '';
+                        document.getElementById('trelloBoardId').value = tc.boardId || '';
+                        document.getElementById('trelloListId').value = tc.listId || '';
+                        
+                        document.getElementById('trelloStatus').textContent = 'Configured';
+                        document.getElementById('trelloStatus').className = 'status-badge configured';
+                        document.getElementById('trelloRemoveBtn').style.display = 'inline-block';
+                    }
+                }
+
+                // Get config status
+                const statusRes = await fetch(`${API_URL}/auth/config/status`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const statusData = await statusRes.json();
+
+                console.log('Config status:', statusData);
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Save Jira configuration
+        async function saveJiraConfig(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('jiraSaveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const config = {
+                domain: document.getElementById('jiraDomain').value,
+                email: document.getElementById('jiraEmail').value,
+                apiToken: document.getElementById('jiraApiToken').value,
+                projectKey: document.getElementById('jiraProjectKey').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/auth/config/jira`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const data = await response.json();
+
+                const alert = document.getElementById('jiraAlert');
+                if (data.success) {
+                    alert.textContent = `✅ ${data.message} (Connected as: ${data.data.testResult.user})`;
+                    alert.className = 'alert success show';
+                    
+                    document.getElementById('jiraStatus').textContent = 'Configured';
+                    document.getElementById('jiraStatus').className = 'status-badge configured';
+                    document.getElementById('jiraRemoveBtn').style.display = 'inline-block';
+                } else {
+                    alert.textContent = `❌ ${data.error || data.message}`;
+                    alert.className = 'alert error show';
+                }
+            } catch (error) {
+                const alert = document.getElementById('jiraAlert');
+                alert.textContent = `❌ Error: ${error.message}`;
+                alert.className = 'alert error show';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Jira Config';
+            }
+        }
+
+        // Save Trello configuration
+        async function saveTrelloConfig(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('trelloSaveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const config = {
+                apiKey: document.getElementById('trelloApiKey').value,
+                apiToken: document.getElementById('trelloApiToken').value,
+                boardId: document.getElementById('trelloBoardId').value,
+                listId: document.getElementById('trelloListId').value || undefined
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/auth/config/trello`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const data = await response.json();
+
+                const alert = document.getElementById('trelloAlert');
+                if (data.success) {
+                    alert.textContent = `✅ ${data.message} (Connected as: ${data.data.testResult.user})`;
+                    alert.className = 'alert success show';
+                    
+                    document.getElementById('trelloStatus').textContent = 'Configured';
+                    document.getElementById('trelloStatus').className = 'status-badge configured';
+                    document.getElementById('trelloRemoveBtn').style.display = 'inline-block';
+                } else {
+                    alert.textContent = `❌ ${data.error || data.message}`;
+                    alert.className = 'alert error show';
+                }
+            } catch (error) {
+                const alert = document.getElementById('trelloAlert');
+                alert.textContent = `❌ Error: ${error.message}`;
+                alert.className = 'alert error show';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Trello Config';
+            }
+        }
+
+        // Remove Jira configuration
+        async function removeJiraConfig() {
+            if (!confirm('Remove Jira configuration?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/config/jira`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('jiraForm').reset();
+                    document.getElementById('jiraStatus').textContent = 'Not Configured';
+                    document.getElementById('jiraStatus').className = 'status-badge not-configured';
+                    document.getElementById('jiraRemoveBtn').style.display = 'none';
+
+                    const alert = document.getElementById('jiraAlert');
+                    alert.textContent = '✅ Jira configuration removed';
+                    alert.className = 'alert success show';
+                }
+            } catch (error) {
+                console.error('Error removing Jira config:', error);
+            }
+        }
+
+        // Remove Trello configuration
+        async function removeTrelloConfig() {
+            if (!confirm('Remove Trello configuration?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/config/trello`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('trelloForm').reset();
+                    document.getElementById('trelloStatus').textContent = 'Not Configured';
+                    document.getElementById('trelloStatus').className = 'status-badge not-configured';
+                    document.getElementById('trelloRemoveBtn').style.display = 'none';
+
+                    const alert = document.getElementById('trelloAlert');
+                    alert.textContent = '✅ Trello configuration removed';
+                    alert.className = 'alert success show';
+                }
+            } catch (error) {
+                console.error('Error removing Trello config:', error);
+            }
+        }
+
+        // Load data on page load
+        loadUserData();
+    </script>
+</body>
+</html>
